@@ -14,7 +14,13 @@ public class MenuServiceImpl implements MenuService {
 
 	@Override
 	public void getMenuList(HttpServletRequest req) {
-		req.setAttribute("menuList", mdao.selectLMenuList());
+		req.getServletContext().setAttribute("menuList", mdao.selectLMenuList()); //getServletContext()는 application꺼임
+	}
+
+	@Override
+	public void printClassName() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

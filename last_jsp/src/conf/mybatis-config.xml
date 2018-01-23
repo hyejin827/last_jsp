@@ -16,5 +16,7 @@
 	
 	<mappers>
 		<mapper resource="sql/menu.xml"/>
+		<mapper resource="sql/user.xml"/>
+		<mapper resource="sql/common.xml"/>
 	</mappers>
 </configuration>

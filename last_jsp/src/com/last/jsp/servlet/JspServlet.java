@@ -9,12 +9,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
+import com.last.jsp.factory.ServiceFactory;
 import com.last.jsp.service.MenuService;
-import com.last.jsp.service.impl.MenuServiceImpl;
+import com.last.jsp.service.UserService;
+import com.last.jsp.util.URIParser;
 
 @WebServlet("/view/*")
 public class JspServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private static Logger log = Logger.getLogger(JspServlet.class);
+	private ServiceFactory sf = ServiceFactory.getInstance();
        
     public JspServlet() {
         super();
@@ -30,9 +36,13 @@ public class JspServlet extends HttpServlet {
 	}
 	
 	public void doProcess(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		RequestDispatcher rd = req.getRequestDispatcher("/WEB-INF/view/index.jsp");
-		MenuService ms = new MenuServiceImpl();
-		ms.getMenuList(req);
+		String uri = req.getRequestURI();
+		log.debug(uri);
+		RequestDispatcher rd = req.getRequestDispatcher("/WEB-INF" + uri + ".jsp");
+		if(req.getServletContext().getAttribute("menuList")==null) {
+			MenuService ms = (MenuService)sf.getService("menu");
+			ms.getMenuList(req);
+		}
 		/*List<Map<String,String>> list = new ArrayList<Map<String,String>>();
 		for(int i=1;i<=5;i++) {
 			Map<String,String> m = new HashMap<String,String>();
@@ -42,7 +52,14 @@ public class JspServlet extends HttpServlet {
 			list.add(m);
 		}
 		req.setAttribute("list", list); //list를 그냥 보낼수 없어서 request에 담아쥼*/
+		String command = URIParser.getCommand(uri, 1);
+		log.debug(command);
+		if(command.equals("list")) {
+			uri = uri.replaceAll("/" + command, "");
+			command = URIParser.getCommand(uri, 1);
+			UserService s = (UserService)sf.getService(command);
+			s.getUserList(req);
+		}
 		rd.forward(req, res);
 	}
-
 }
